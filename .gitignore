@@ -1,1 +1,17 @@
 .env
+
+# Telethon session files (contain auth tokens — never commit)
+scraper/.sessions/
+
+# Python
+__pycache__/
+*.pyc
+scraper/venv/
+
+# Node
+bot/node_modules/
+
+#Claude 
+.claude/
+CLAUDE.md
+NTI_Technical_Documentation.md

@@ -1,0 +1,9 @@
+{
+  "channels": [
+    {
+      "username": "example_channel",
+      "enabled": true,
+      "since": null
+    }
+  ]
+}

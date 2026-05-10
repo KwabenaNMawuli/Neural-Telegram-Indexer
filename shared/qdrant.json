@@ -1,0 +1,15 @@
+{
+  "collection": "telegram_messages",
+  "vector_size": 768,
+  "distance": "Cosine",
+  "embedding_model": "text-embedding-004",
+  "payload_schema": {
+    "channel": "string — channel username",
+    "message_id": "integer — Telegram message id",
+    "date": "string — ISO 8601 timestamp",
+    "text": "string — message text",
+    "url": "string — t.me link to the message",
+    "sender_id": "integer | null",
+    "reply_to": "integer | null"
+  }
+}

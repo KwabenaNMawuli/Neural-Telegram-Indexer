@@ -1,0 +1,21 @@
+{
+  "name": "neural-telegram-indexer-bot",
+  "version": "0.1.0",
+  "description": "Telegram bot front-end for the Neural-Telegram-Indexer RAG search engine.",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@qdrant/js-client-rest": "^1.12.0",
+    "dotenv": "^16.4.5",
+    "telegraf": "^4.16.3"
+  }
+}
