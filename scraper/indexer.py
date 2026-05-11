@@ -65,7 +65,11 @@ def _point_id(channel: str, message_id: int) -> str:
 
 
 def upsert_messages(client: QdrantClient, items: Iterable[MessageRecord]) -> int:
-    """Upsert a batch of embedded messages. Returns the number of points written."""
+    """Upsert a batch of embedded messages. Returns the number of points written.
+
+    Retries once with a fresh client if the first attempt fails — protects against
+    the connection going stale during long Gemini rate-limit sleeps.
+    """
     points = []
     for it in items:
         payload: dict[str, Any] = {k: v for k, v in it.items() if k != "vector"}
@@ -78,7 +82,12 @@ def upsert_messages(client: QdrantClient, items: Iterable[MessageRecord]) -> int
         )
     if not points:
         return 0
-    client.upsert(collection_name=COLLECTION, points=points)
+    try:
+        client.upsert(collection_name=COLLECTION, points=points)
+    except Exception as e:
+        print(f"  [indexer] upsert failed ({type(e).__name__}), reconnecting and retrying")
+        fresh = get_client()
+        fresh.upsert(collection_name=COLLECTION, points=points)
     return len(points)
 
 

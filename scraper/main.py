@@ -20,6 +20,20 @@ STATE_FILE = Path(__file__).resolve().parent / ".state.json"
 BATCH_SIZE = 100
 
 
+def normalize_channel(s: str) -> str:
+    """Reduce any channel reference to its bare username.
+
+    Accepts 'PaperNexus', '@PaperNexus', 'https://t.me/PaperNexus', 't.me/PaperNexus'.
+    Returns 'PaperNexus' for all of the above.
+    """
+    s = s.strip()
+    for prefix in ("https://t.me/", "http://t.me/", "t.me/", "@"):
+        if s.startswith(prefix):
+            s = s[len(prefix):]
+            break
+    return s.rstrip("/")
+
+
 def load_channels() -> list[dict]:
     with CHANNELS_FILE.open(encoding="utf-8") as f:
         return json.load(f)["channels"]
@@ -53,25 +67,26 @@ def _build_records(channel: str, messages: list, vectors: list[list[float]]) -> 
     return records
 
 
-async def process_channel(tg, qdrant, channel: str, state: dict[str, int]) -> None:
-    last_seen = state.get(channel, 0)
+async def process_channel(tg, qdrant, channel_ref: str, state: dict[str, int]) -> None:
+    name = normalize_channel(channel_ref)
+    last_seen = state.get(name, 0)
     buffer = []          # messages with non-empty text, waiting to be embedded
     highest_id = last_seen  # advances even past skipped messages
 
-    print(f"[{channel}] resuming from message_id > {last_seen}")
+    print(f"[{name}] resuming from message_id > {last_seen}")
 
     async def flush():
         nonlocal buffer
         if not buffer:
             return
         vectors = embed_batch([m.message for m in buffer])
-        n = upsert_messages(qdrant, _build_records(channel, buffer, vectors))
-        state[channel] = highest_id
+        n = upsert_messages(qdrant, _build_records(name, buffer, vectors))
+        state[name] = highest_id
         save_state(state)
-        print(f"[{channel}] indexed batch of {n}, cursor={highest_id}")
+        print(f"[{name}] indexed batch of {n}, cursor={highest_id}")
         buffer = []
 
-    async for msg in iter_channel_messages(tg, channel, min_id=last_seen):
+    async for msg in iter_channel_messages(tg, name, min_id=last_seen):
         highest_id = max(highest_id, msg.id)
         text = (msg.message or "").strip()
         if not text:
@@ -81,10 +96,9 @@ async def process_channel(tg, qdrant, channel: str, state: dict[str, int]) -> No
             await flush()
 
     await flush()
-    # Even if no batches were flushed, persist cursor in case we skipped media-only msgs.
-    state[channel] = highest_id
+    state[name] = highest_id
     save_state(state)
-    print(f"[{channel}] done, final cursor={highest_id}")
+    print(f"[{name}] done, final cursor={highest_id}")
 
 
 async def main() -> None:
