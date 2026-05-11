@@ -36,9 +36,17 @@ async def iter_channel_messages(
     client: TelegramClient,
     channel: str,
     since: Optional[datetime] = None,
+    min_id: int = 0,
 ) -> AsyncIterator[Message]:
-    """Yield messages from `channel` in chronological order, optionally only those after `since`."""
-    async for msg in client.iter_messages(channel, reverse=True, offset_date=since):
+    """Yield messages from `channel` in chronological order.
+
+    `since`  — only messages after this datetime (server-side filter).
+    `min_id` — only messages with id strictly greater than this (server-side filter).
+               Use to resume from a bookmark without re-fetching old messages.
+    """
+    async for msg in client.iter_messages(
+        channel, reverse=True, offset_date=since, min_id=min_id
+    ):
         yield msg
 
 

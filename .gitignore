@@ -3,6 +3,9 @@
 # Telethon session files (contain auth tokens — never commit)
 scraper/.sessions/
 
+# Scraper progress bookmark — local-only, machine-specific
+scraper/.state.json
+
 # Python
 __pycache__/
 *.pyc

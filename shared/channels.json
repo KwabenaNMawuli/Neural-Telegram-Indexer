@@ -1,8 +1,23 @@
 {
   "channels": [
     {
-      "username": "example_channel",
+      "username": "https://t.me/PaperNexus",
       "enabled": true,
+      "since": null
+    },
+    {
+      "username": "https://t.me/CodeProgrammer",
+      "enabled": false,
+      "since": null
+    },
+    {
+      "username": "https://t.me/Courses27",
+      "enabled": false,
+      "since": null
+    },
+    {
+      "username": "https://t.me/Machine_learn",
+      "enabled": false,
       "since": null
     }
   ]
