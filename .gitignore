@@ -17,4 +17,7 @@ bot/node_modules/
 #Claude 
 .claude/
 CLAUDE.md
-NTI_Technical_Documentation.md
+NTI_Technical_Documentation.docx
+.gitignore
+shared/channels.json
+
