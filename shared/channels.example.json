@@ -1,0 +1,19 @@
+{
+  "channels": [
+    {
+      "username": "https://t.me/SomePublicChannel",
+      "enabled": true,
+      "since": null
+    },
+    {
+      "username": "@AnotherChannel",
+      "enabled": true,
+      "since": "2025-01-01T00:00:00"
+    },
+    {
+      "username": "ThirdChannelBareName",
+      "enabled": false,
+      "since": null
+    }
+  ]
+}
