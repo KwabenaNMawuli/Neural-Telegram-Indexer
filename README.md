@@ -20,6 +20,51 @@ If you fork or run this against any Telegram channel, you are responsible for en
 - Not a substitute for legitimate research data sources (arXiv, OpenReview, journal APIs) when those are available.
 - Not affiliated with or endorsed by Telegram.
 
+## Running the project
+
+NTI ships as two services — a Python scraper (Telethon → embeddings → Qdrant) and a Node bot (Telegram queries → search → synthesis). Both are containerized with Docker Compose.
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) or Docker Engine + Compose (Linux)
+- A Telegram API ID + hash from [my.telegram.org](https://my.telegram.org)
+- A Telegram bot token from [@BotFather](https://t.me/BotFather)
+- A free [Qdrant Cloud](https://cloud.qdrant.io) cluster
+- A [Google AI Studio](https://aistudio.google.com/app/apikey) API key for Gemini
+
+### One-time setup
+
+1. Copy `.env.example` to `.env` and fill in every value.
+2. Copy `shared/channels.example.json` to `shared/channels.json` and list the channels you have permission to index.
+3. Build the images:
+   ```bash
+   docker compose build
+   ```
+4. **First-time Telegram login (interactive, once per machine).** Telethon needs the phone code Telegram sends to your account. Run the scraper's client smoke-test inside a one-shot container so the session file lands directly in the persistent Docker volume:
+   ```bash
+   docker compose run --rm scraper python client.py
+   ```
+   You'll be prompted for your phone number, the code Telegram texts you, and your 2FA password (if set). On success, the session is saved to the `scraper_sessions` volume and never needs to be entered again.
+
+### Day-to-day
+
+```bash
+docker compose up -d            # start both services in the background
+docker compose logs -f          # tail logs from both services
+docker compose logs -f scraper  # tail just the scraper
+docker compose down             # stop and remove containers (volumes survive)
+docker compose up -d --build    # rebuild and restart after code changes
+```
+
+### Configuration files
+
+| File                         | What it contains                                    | In git? |
+|------------------------------|-----------------------------------------------------|---------|
+| `.env`                       | API keys, tokens, phone number                      | No      |
+| `shared/channels.json`       | List of channels to index                           | No      |
+| `shared/qdrant.json`         | Collection name, vector size, distance metric       | Yes     |
+| `scraper/state/state.json`   | Resume cursor (last-indexed message ID per channel) | No      |
+
 ### About the license
 
 The code is released under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. In plain terms:

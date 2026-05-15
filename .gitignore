@@ -4,7 +4,7 @@
 scraper/.sessions/
 
 # Scraper progress bookmark — local-only, machine-specific
-scraper/.state.json
+scraper/state/
 
 # Python
 __pycache__/

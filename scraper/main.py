@@ -15,7 +15,7 @@ from indexer import MessageRecord, ensure_collection, get_client, upsert_message
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CHANNELS_FILE = PROJECT_ROOT / "shared" / "channels.json"
-STATE_FILE = Path(__file__).resolve().parent / ".state.json"
+STATE_FILE = Path(__file__).resolve().parent / "state" / "state.json"
 
 BATCH_SIZE = 100
 
@@ -47,6 +47,7 @@ def load_state() -> dict[str, int]:
 
 
 def save_state(state: dict[str, int]) -> None:
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
     with STATE_FILE.open("w", encoding="utf-8") as f:
         json.dump(state, f, indent=2)
 

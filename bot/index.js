@@ -21,6 +21,15 @@ if (!token) {
 
 const bot = new Telegraf(token);
 
+bot.use(async (ctx, next) => {
+  console.log(
+    `[update] type=${ctx.updateType}`,
+    `from=${ctx.from?.username ?? ctx.from?.id ?? "?"}`,
+    `text=${JSON.stringify(ctx.message?.text ?? "")}`
+  );
+  return next();
+});
+
 bot.start(async (ctx) => {
   await ctx.reply(formatWelcome(), { parse_mode: "HTML" });
 });
@@ -59,8 +68,16 @@ bot.catch((err) => {
   console.error("[telegraf] unhandled:", err);
 });
 
-await bot.launch();
-console.log("Bot is online. Press Ctrl+C to stop.");
+// Telegraf v4: bot.launch() returns a promise that resolves only when the bot
+// stops, so we must NOT await it here — fire-and-forget, surface errors via .catch.
+bot.launch({ dropPendingUpdates: true }).catch((err) => {
+  console.error("[bot] launch failure:", err);
+  process.exit(1);
+});
+
+// Confirm we got past launch initialization.
+const me = await bot.telegram.getMe();
+console.log(`Bot is online as @${me.username} (id=${me.id}). Press Ctrl+C to stop.`);
 
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
