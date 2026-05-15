@@ -1,0 +1,49 @@
+# Tells Docker Compose how to build and run NTI's two services together.
+# Run from the project root with:  docker compose up -d   (start in background)
+#                                  docker compose logs -f (watch the logs)
+#                                  docker compose down    (stop everything)
+
+services:
+  scraper:
+    # Build the scraper image using scraper/Dockerfile, with the project root as
+    # the build context (so the Dockerfile can see both scraper/ and shared/).
+    build:
+      context: .
+      dockerfile: scraper/Dockerfile
+    container_name: nti-scraper
+
+    # Mount the .env file from the host into the container.
+    # The container code expects it at /app/.env.
+    env_file:
+      - .env
+
+    # Persistent storage: the Telegram session file and the resume cursor
+    # must survive container restarts, otherwise you'd have to log in to
+    # Telegram every time the container restarts.
+    volumes:
+      - scraper_sessions:/app/scraper/.sessions
+      - scraper_state:/app/scraper/state
+
+    # If the container crashes (e.g. network blip, Telegram rate limit),
+    # restart it automatically — UNLESS we explicitly stopped it.
+    restart: unless-stopped
+
+  bot:
+    build:
+      context: .
+      dockerfile: bot/Dockerfile
+    container_name: nti-bot
+
+    env_file:
+      - .env
+
+    # The bot is stateless — no volumes needed. It reads from Qdrant Cloud
+    # and talks to Telegram via long-polling. Nothing to persist on disk.
+
+    restart: unless-stopped
+
+# Named volumes — Docker manages where these live on disk. Survives container
+# rebuilds. Use `docker volume ls` to see them, `docker volume rm` to delete.
+volumes:
+  scraper_sessions:
+  scraper_state:

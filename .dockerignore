@@ -1,0 +1,48 @@
+# Files and directories listed here are excluded from the "build context"
+# that Docker reads when building images. They never enter any image.
+
+# --- Version control ---
+.git
+.gitignore
+
+# --- Secrets ---
+# .env is mounted at runtime by docker-compose, NEVER baked into the image.
+.env
+.env.example
+
+# --- Sensitive runtime data ---
+# Telegram session file — contains a logged-in user-account credential.
+# Mounted from a Docker volume at runtime.
+scraper/.sessions
+
+# Scraper resume cursor — mounted as a volume.
+scraper/state
+
+# --- Python build artifacts ---
+scraper/venv
+**/__pycache__
+**/*.pyc
+
+# --- Node build artifacts ---
+bot/node_modules
+
+# --- Editor and OS noise ---
+.vscode
+.idea
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Claude Code config and project notes (not needed at runtime) ---
+.claude
+CLAUDE.md
+
+# --- Docs and tooling not needed inside the running container ---
+README.md
+NTI_Technical_Documentation.docx
+
+# --- Docker files themselves (no point copying them into the image) ---
+Dockerfile
+**/Dockerfile
+docker-compose.yml
+.dockerignore
