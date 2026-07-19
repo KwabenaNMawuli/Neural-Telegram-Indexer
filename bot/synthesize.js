@@ -6,7 +6,7 @@ import "./env.js";  // ensures .env is loaded if this module is imported in isol
 
 import { GoogleGenAI } from "@google/genai";
 
-const MODEL = "gemini-2.5-flash";
+const MODEL = "gemini-3.5-flash";
 
 const genai = new GoogleGenAI({ apiKey: process.env.Gemini_api_key });
 
